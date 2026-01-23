@@ -2,6 +2,8 @@
 
 A home schooled nerdy 16 year old!
 
+Check [lukasreis.com](https://lukasreis.com)
+
 ---
 
 **My Coding Stats!**
