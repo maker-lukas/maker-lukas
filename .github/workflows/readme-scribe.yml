@@ -36,12 +36,14 @@ jobs:
         run: |
           echo "URL length: ${#WAKATIME_URL}"
           echo "URL last 20 chars: ${WAKATIME_URL: -20}"
-          HTTP_CODE=$(curl -s -o /tmp/response.txt -w "%{http_code}" \
+          echo "--- Checking for redirects ---"
+          curl -s -D - -o /dev/null \
             -H "Authorization: Basic $(echo -n $WAKATIME_API_KEY | base64)" \
             -H "Accept: application/json" \
-            "${WAKATIME_URL}/users/current/stats/last_7_days")
-          echo "HTTP status: $HTTP_CODE"
-          cat /tmp/response.txt | head -c 500
+            "${WAKATIME_URL}/users/current/stats/last_7_days" 2>&1 | grep -iE "HTTP/|location"
+          echo "--- Go base64 vs shell base64 ---"
+          echo "Shell base64: $(echo -n $WAKATIME_API_KEY | base64)"
+          echo "Key first 8 chars: ${WAKATIME_API_KEY:0:8}"
 
       - name: generate readme
         env:
