@@ -34,16 +34,21 @@ jobs:
           WAKATIME_API_KEY: ${{ secrets.WAKATIME_API_KEY }}
           WAKATIME_URL: ${{ secrets.WAKATIME_URL }}
         run: |
-          echo "URL length: ${#WAKATIME_URL}"
-          echo "URL last 20 chars: ${WAKATIME_URL: -20}"
-          echo "--- Checking for redirects ---"
-          curl -s -D - -o /dev/null \
+          echo "--- With curl default User-Agent ---"
+          curl -s -o /dev/null -w "%{http_code}" \
             -H "Authorization: Basic $(echo -n $WAKATIME_API_KEY | base64)" \
             -H "Accept: application/json" \
-            "${WAKATIME_URL}/users/current/stats/last_7_days" 2>&1 | grep -iE "HTTP/|location"
-          echo "--- Go base64 vs shell base64 ---"
-          echo "Shell base64: $(echo -n $WAKATIME_API_KEY | base64)"
-          echo "Key first 8 chars: ${WAKATIME_API_KEY:0:8}"
+            "${WAKATIME_URL}/users/current/stats/last_7_days"
+          echo ""
+          echo "--- With Go User-Agent ---"
+          curl -s -o /tmp/go-ua.txt -w "%{http_code}" \
+            -H "Authorization: Basic $(echo -n $WAKATIME_API_KEY | base64)" \
+            -H "Accept: application/json" \
+            -H "User-Agent: Go-http-client/2.0" \
+            "${WAKATIME_URL}/users/current/stats/last_7_days"
+          echo ""
+          echo "Go UA response:"
+          cat /tmp/go-ua.txt | head -c 300
 
       - name: generate readme
         env:
